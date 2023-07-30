@@ -1,23 +1,24 @@
 import { Injectable } from "@nestjs/common";
 import { Comment } from "@prisma/client";
 import { PrismaService } from "src/common/prisma.service";
-import { CommentRequestDTO } from "./dto/request/comment.request.dto";
+import { CommentCreateRequestDTO, CommentUpdateRequestDTO } from "./dto/request/comment.request.dto";
 
 @Injectable()
 export class CommentService {
   constructor(private prisma: PrismaService) {}
 
   async getComment(id: number): Promise<Comment> {
-    let Comment: Comment = await this.prisma.comment.findUnique({
+    let comment: Comment = await this.prisma.comment.findUnique({
       where: {
         id: id,
       },
       include: {
         author: true,
         post: true,
+        childComments: true,
       },
     });
-    return Comment;
+    return comment;
   }
 
   async getComments(): Promise<Comment[]> {
@@ -29,25 +30,32 @@ export class CommentService {
     });
   }
 
-  async createComment(data: CommentRequestDTO) {
+  async getCommentsByPostId(postId: number): Promise<Comment[]> {
+    let comments: Comment[] = await this.prisma.comment.findMany({
+      where: {
+        postId: postId,
+      },
+      include: {
+        author: true,
+        post: true,
+        childComments: true,
+      },
+    });
+    return comments;
+  }
+
+  async createComment(data: CommentCreateRequestDTO) {
     await this.prisma.comment.create({
       data: {
-        author: {
-          connect: {
-            id: data.authorId,
-          },
-        },
-        post: {
-          connect: {
-            id: data.postId,
-          },
-        },
+        authorId: data.authorId,
+        postId: data.postId,
+        parentCommentId: data.parentCommentId ? data.parentCommentId : null,
         content: data.content,
       },
     });
   }
 
-  async updateComment(id: number, data: CommentRequestDTO) {
+  async updateComment(id: number, data: CommentUpdateRequestDTO) {
     await this.prisma.comment.update({
       where: {
         id: id,

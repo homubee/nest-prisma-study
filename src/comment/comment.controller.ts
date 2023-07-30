@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { CommentRequestDTO } from "./dto/request/comment.request.dto";
+import { CommentCreateRequestDTO, CommentUpdateRequestDTO } from "./dto/request/comment.request.dto";
 import { CommentService } from "./comment.service";
 import { Comment } from "@prisma/client";
 
@@ -11,8 +11,8 @@ export class CommentController {
 
   @Get(":id")
   @ApiOperation({ summary: "댓글 단건 조회 API", description: "댓글을 조회한다." })
-  getComment(@Param("id") id: string): Promise<Comment> {
-    return this.commentService.getComment(parseInt(id));
+  getComment(@Param("id") id: number): Promise<Comment> {
+    return this.commentService.getComment(id);
   }
 
   @Get()
@@ -23,19 +23,19 @@ export class CommentController {
 
   @Post()
   @ApiOperation({ summary: "댓글 등록 API", description: "댓글을 등록한다." })
-  createComment(@Body() CommentRequestDTO: CommentRequestDTO) {
-    this.commentService.createComment(CommentRequestDTO);
+  createComment(@Body() requestDTO: CommentCreateRequestDTO) {
+    this.commentService.createComment(requestDTO);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "댓글 수정 API", description: "댓글을 수정한다." })
-  updateComment(@Param("id") id: string, @Body() CommentRequestDTO: CommentRequestDTO) {
-    this.commentService.updateComment(parseInt(id), CommentRequestDTO);
+  updateComment(@Param("id") id: number, @Body() requestDTO: CommentUpdateRequestDTO) {
+    this.commentService.updateComment(id, requestDTO);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "댓글 삭제 API", description: "댓글을 삭제한다." })
-  deleteComment(@Param("id") id: string) {
-    this.commentService.deleteComment(parseInt(id));
+  deleteComment(@Param("id") id: number) {
+    this.commentService.deleteComment(id);
   }
 }

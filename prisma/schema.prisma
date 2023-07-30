@@ -44,12 +44,15 @@ model Post {
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  authorId  Int      @map("member_id")
-  author    Member   @relation(fields: [authorId], references: [id])
-  postId    Int      @map("post_id")
-  post      Post     @relation(fields: [postId], references: [id])
-  content   String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt() @map("updated_at")
+  id              Int       @id @default(autoincrement())
+  authorId        Int       @map("member_id")
+  author          Member    @relation(fields: [authorId], references: [id])
+  postId          Int       @map("post_id")
+  post            Post      @relation(fields: [postId], references: [id])
+  parentCommentId Int?      @map("parent_comment_id")
+  parentComment   Comment?  @relation("child", fields: [parentCommentId], references: [id])
+  childComments   Comment[] @relation("child")
+  content         String
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt() @map("updated_at")
 }

@@ -11,8 +11,8 @@ export class BoardController {
 
   @Get(":id")
   @ApiOperation({ summary: "게시판 단건 조회 API", description: "게시판을 조회한다." })
-  getBoard(@Param("id") id: string): Promise<Board> {
-    return this.boardService.getBoard(parseInt(id));
+  getBoard(@Param("id") id: number): Promise<Board> {
+    return this.boardService.getBoard(id);
   }
 
   @Get()
@@ -29,13 +29,13 @@ export class BoardController {
 
   @Put(":id")
   @ApiOperation({ summary: "게시판 수정 API", description: "게시판을 수정한다." })
-  updateBoard(@Param("id") id: string, @Body() requestDTO: BoardRequestDTO) {
-    this.boardService.updateBoard(parseInt(id), requestDTO);
+  updateBoard(@Param("id") id: number, @Body() requestDTO: BoardRequestDTO) {
+    this.boardService.updateBoard(id, requestDTO);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "게시판 삭제 API", description: "게시판을 삭제한다." })
-  deleteBoard(@Param("id") id: string) {
-    this.boardService.deleteBoard(parseInt(id));
+  deleteBoard(@Param("id") id: number) {
+    this.boardService.deleteBoard(id);
   }
 }

@@ -1,19 +1,16 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Member, Comment } from "@prisma/client";
+import { OmitType } from "@nestjs/swagger";
+import { PostEntity } from "src/post/entity/post.entity";
 
-export class PostResponseDTO {
-  @ApiProperty()
-  author?: Member;
-
-  @ApiProperty()
-  comments?: Comment[];
-
-  @ApiProperty()
-  title: string;
-
-  @ApiProperty()
-  content: string;
-
-  @ApiProperty()
-  viewCnt: number;
+export class PostResponseDTO extends OmitType(PostEntity, ["authorId", "boardId"]) {
+  constructor(post: PostEntity) {
+    super();
+    this.author = post.author;
+    this.board = post.board;
+    this.comments = post.comments;
+    this.title = post.title;
+    this.content = post.content;
+    this.viewCnt = post.viewCnt;
+    this.createdAt = post.createdAt;
+    this.updatedAt = post.updatedAt;
+  }
 }

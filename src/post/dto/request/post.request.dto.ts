@@ -1,28 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, PartialType, PickType } from "@nestjs/swagger";
 import { Pageable } from "src/common/page";
 import { Type } from "class-transformer";
+import { PostEntity } from "src/post/entity/post.entity";
 
-export class PostSearch {
-  @ApiProperty()
-  title: string;
+export class PostSearch extends PartialType(PickType(PostEntity, ["title", "content"])) {}
 
-  @ApiProperty()
-  content: string;
-}
-
-export class PostRequestDTO {
-  @ApiProperty()
-  authorId: number;
-
-  @ApiProperty()
-  boardId: number;
-
-  @ApiProperty()
-  title: string;
-
-  @ApiProperty()
-  content: string;
-}
+export class PostRequestDTO extends PickType(PostEntity, ["authorId", "boardId", "title", "content"]) {}
 
 export class PostRequestQueryDTO {
   @ApiProperty()

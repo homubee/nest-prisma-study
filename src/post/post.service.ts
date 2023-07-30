@@ -1,15 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { Post } from "@prisma/client";
 import { PrismaService } from "src/common/prisma.service";
 import { PostRequestDTO, PostRequestQueryDTO } from "./dto/request/post.request.dto";
 import { Page } from "src/common/page";
+import { PostEntity } from "./entity/post.entity";
 
 @Injectable()
 export class PostService {
   constructor(private prisma: PrismaService) {}
 
-  async getPost(id: number): Promise<Post> {
-    let post: Post = await this.prisma.post.findUnique({
+  async getPost(id: number): Promise<PostEntity> {
+    let post: PostEntity = await this.prisma.post.findUnique({
       where: {
         id: id,
       },
@@ -21,17 +21,19 @@ export class PostService {
     return post;
   }
 
-  async getPosts(requestDTO: PostRequestQueryDTO): Promise<Page<Post>> {
+  async getPosts(requestDTO: PostRequestQueryDTO): Promise<Page<PostEntity>> {
     const { search, pageable } = requestDTO;
-    let page: Page<Post> = new Page();
-    let where = {
-      title: {
-        ...(search.title ? { contains: search.title } : {}),
-      },
-      content: {
-        ...(search.content ? { contains: search.content } : {}),
-      },
-    };
+    let page: Page<PostEntity> = new Page();
+    let where = search
+      ? {
+          title: {
+            ...(search.title ? { contains: search.title } : {}),
+          },
+          content: {
+            ...(search.content ? { contains: search.content } : {}),
+          },
+        }
+      : {};
     page.totalCnt = await this.prisma.post
       .aggregate({
         _count: {

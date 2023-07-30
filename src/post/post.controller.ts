@@ -7,6 +7,7 @@ import { CommentService } from "src/comment/comment.service";
 import { Comment } from "@prisma/client";
 import { Page, Pageable } from "src/common/page";
 import { ApiOkResponsePaginated } from "src/common/decorator";
+import { PostEntity } from "./entity/post.entity";
 
 @Controller("/api/v1/posts")
 @ApiTags("게시글 API")
@@ -16,8 +17,8 @@ export class PostController {
   @Get(":id")
   @ApiOperation({ summary: "게시글 단건 조회 API", description: "게시글을 조회한다." })
   @ApiOkResponse({ type: PostResponseDTO })
-  getPost(@Param("id") id: number): Promise<PostResponseDTO> {
-    return this.postService.getPost(id);
+  async getPost(@Param("id") id: number): Promise<PostResponseDTO> {
+    return new PostResponseDTO(await this.postService.getPost(id));
   }
 
   @Get()
@@ -42,8 +43,14 @@ export class PostController {
       $ref: getSchemaPath(Pageable),
     },
   })
-  getPosts(@Query() requestDTO: PostRequestQueryDTO): Promise<Page<PostResponseDTO>> {
-    return this.postService.getPosts(requestDTO);
+  async getPosts(@Query() requestDTO: PostRequestQueryDTO): Promise<Page<PostResponseDTO>> {
+    let entityPage: Page<PostEntity> = await this.postService.getPosts(requestDTO);
+    let responsePage: Page<PostResponseDTO> = new Page();
+    responsePage.totalCnt = entityPage.totalCnt;
+    responsePage.pageSize = entityPage.pageSize;
+    responsePage.totalPages = entityPage.totalPages;
+    responsePage.data = entityPage.data.map((elem) => new PostResponseDTO(elem));
+    return responsePage;
   }
 
   @Get(":id/comments")

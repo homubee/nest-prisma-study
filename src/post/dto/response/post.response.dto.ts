@@ -3,7 +3,7 @@ import { Member, Comment } from "@prisma/client";
 
 export class PostResponseDTO {
   @ApiProperty()
-  member?: Member;
+  author?: Member;
 
   @ApiProperty()
   comments?: Comment[];

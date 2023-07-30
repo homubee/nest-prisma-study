@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { Post } from "@prisma/client";
 import { PrismaService } from "src/common/prisma.service";
-import { PostRequestDTO } from "./dto/request/post.request.dto";
+import { PostRequestDTO, PostRequestQueryDTO } from "./dto/request/post.request.dto";
+import { Page } from "src/common/page";
 
 @Injectable()
 export class PostService {
@@ -20,13 +21,37 @@ export class PostService {
     return post;
   }
 
-  async getPosts(): Promise<Post[]> {
-    return await this.prisma.post.findMany({
+  async getPosts(requestDTO: PostRequestQueryDTO): Promise<Page<Post>> {
+    const { search, pageable } = requestDTO;
+    let page: Page<Post> = new Page();
+    let where = {
+      title: {
+        ...(search.title ? { contains: search.title } : {}),
+      },
+      content: {
+        ...(search.content ? { contains: search.content } : {}),
+      },
+    };
+    page.totalCnt = await this.prisma.post
+      .aggregate({
+        _count: {
+          _all: true,
+        },
+        where: where,
+      })
+      .then((res) => res._count._all);
+    page.pageSize = pageable.size;
+    page.totalPages = page.getTotalPages();
+    page.data = await this.prisma.post.findMany({
+      skip: pageable.getSkip(),
+      take: pageable.size,
       include: {
         author: true,
         board: true,
       },
+      where: where,
     });
+    return page;
   }
 
   async createPost(data: PostRequestDTO) {
